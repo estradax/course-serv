@@ -23,11 +23,13 @@ func main() {
 
 	jwtSecret := os.Getenv("JWT_SECRET")
 
-	registerHandler := handler.NewRegisterHandler(db, []byte(jwtSecret))
+	authHandler := handler.NewAuthHandler(db, []byte(jwtSecret))
 
 	app := fiber.New()
 
-	app.Post("/api/v1/register", registerHandler.Register)
+	app.Get("/api/v1/profile", authHandler.Profile)
+
+	app.Post("/api/v1/register", authHandler.Register)
 
 	app.Post("/api/v1/login", func(c *fiber.Ctx) error {
 		return c.SendString("Hello, world")
