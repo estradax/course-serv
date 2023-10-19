@@ -13,11 +13,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type registerRequest struct {
-	Name     string `json:"name"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
-}
+var errCantQueryFirstUser = errors.New("can't query first user")
 
 type AuthHandler struct {
 	DB        *gorm.DB
@@ -78,7 +74,7 @@ func (h *AuthHandler) Profile(c *fiber.Ctx) error {
 	}
 
 	if result.RowsAffected != 1 {
-		return errors.New("can't query first users")
+		return errCantQueryFirstUser
 	}
 
 	return c.JSON(fiber.Map{
@@ -86,6 +82,12 @@ func (h *AuthHandler) Profile(c *fiber.Ctx) error {
 		"name": user.Name,
 		"email": user.Email,
 	})
+}
+
+type registerRequest struct {
+	Name     string `json:"name"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
 func (h *AuthHandler) Register(c *fiber.Ctx) error {
@@ -114,11 +116,9 @@ func (h *AuthHandler) Register(c *fiber.Ctx) error {
 		return errors.New("error creating user")
 	}
 
-	t := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.RegisteredClaims{
+	token, err := createToken(jwt.RegisteredClaims{
 		Subject: fmt.Sprintf("%v", user.ID),
-	})
-
-	token, err := t.SignedString(h.JWTSecret)
+	}, h.JWTSecret)
 	if err != nil {
 		return err
 	}
@@ -126,4 +126,49 @@ func (h *AuthHandler) Register(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{
 		"token": token,
 	})
+}
+
+type loginRequest struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+func (h *AuthHandler) Login(c *fiber.Ctx) error {
+	p := new(loginRequest)
+	if err := c.BodyParser(p); err != nil {
+		return err
+	}
+
+	user := model.User{}
+
+	result := h.DB.Where("email = ?", p.Email).First(&user)
+	if result.Error != nil {
+		return result.Error
+	}
+
+	if result.RowsAffected != 1 {
+		return errCantQueryFirstUser
+	}
+
+	token, err := createToken(jwt.RegisteredClaims{
+		Subject: fmt.Sprintf("%v", user.ID),
+	}, h.JWTSecret)
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(fiber.Map{
+		"token": token,
+	})
+}
+
+func createToken(claims jwt.RegisteredClaims, secret []byte) (string, error) {
+	t := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	token, err := t.SignedString(secret)
+	if err != nil {
+		return "", err
+	}
+
+	return token, nil
 }

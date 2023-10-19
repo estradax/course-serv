@@ -31,9 +31,7 @@ func main() {
 
 	app.Post("/api/v1/register", authHandler.Register)
 
-	app.Post("/api/v1/login", func(c *fiber.Ctx) error {
-		return c.SendString("Hello, world")
-	})
+	app.Post("/api/v1/login", authHandler.Login)
 
 	if err := app.Listen(":8080"); err != nil {
 		log.Fatalln("Cannot listen: ", err.Error())
