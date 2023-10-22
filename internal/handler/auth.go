@@ -3,6 +3,7 @@ package handler
 import (
 	"errors"
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
 
@@ -32,6 +33,7 @@ func (h *AuthHandler) Profile(c *fiber.Ctx) error {
 	splitToken := strings.Split(authToken, " ")
 
 	if len(splitToken) != 2 {
+		log.Println("token: ", authToken)
 		return errors.New("invalid authorization token")
 	}
 

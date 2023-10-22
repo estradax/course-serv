@@ -7,6 +7,7 @@ import (
 	"github.com/estradax/course-serv/internal"
 	"github.com/estradax/course-serv/internal/handler"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/joho/godotenv"
 )
 
@@ -26,6 +27,8 @@ func main() {
 	authHandler := handler.NewAuthHandler(db, []byte(jwtSecret))
 
 	app := fiber.New()
+
+	app.Use(cors.New())
 
 	app.Get("/api/v1/profile", authHandler.Profile)
 
