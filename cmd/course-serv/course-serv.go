@@ -24,17 +24,17 @@ func main() {
 
 	jwtSecret := os.Getenv("JWT_SECRET")
 
-	authHandler := handler.NewAuthHandler(db, []byte(jwtSecret))
+	h := handler.NewHandler(db, []byte(jwtSecret))
 
 	app := fiber.New()
 
 	app.Use(cors.New())
 
-	app.Get("/api/v1/profile", authHandler.Profile)
+	app.Get("/api/v1/profile", h.Authenticated, h.Profile)
+	app.Post("/api/v1/register", h.Register)
+	app.Post("/api/v1/login", h.Login)
 
-	app.Post("/api/v1/register", authHandler.Register)
-
-	app.Post("/api/v1/login", authHandler.Login)
+	app.Get("/api/v1/courses", h.Authenticated, h.GetAll)
 
 	if err := app.Listen(":8080"); err != nil {
 		log.Fatalln("Cannot listen: ", err.Error())
