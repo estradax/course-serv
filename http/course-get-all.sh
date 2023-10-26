@@ -1,3 +1,3 @@
-curl -v -X GET \
-  -H 'Connection: close' \
-  http://localhost:8080/api/v1/courses
+source $(dirname $0)/common.sh
+
+get_with_token "/api/v1/courses" $1
