@@ -8,13 +8,12 @@ import (
 	"github.com/estradax/course-serv/internal/handler"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
-	"github.com/joho/godotenv"
 )
 
 func main() {
-	err := godotenv.Load()
+	err := internal.LoadEnv()
 	if err != nil {
-		log.Fatalln("Cannot load environment: ", err.Error())
+		log.Println("Cannot loadEnv: ", err.Error())
 	}
 
 	db, err := internal.ConnectDB()

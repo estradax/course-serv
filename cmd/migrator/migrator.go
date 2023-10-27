@@ -8,6 +8,11 @@ import (
 )
 
 func main() {
+	err := internal.LoadEnv()	
+	if err != nil {
+		log.Fatalln("Cannot loadEnv: ", err.Error())
+	}
+
 	db, err := internal.ConnectDB()
 	if err != nil {
 		log.Fatalln("Something went wrong: ", err.Error())
