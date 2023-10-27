@@ -26,7 +26,8 @@ func NewHandler(db *gorm.DB, secret []byte) *Handler {
 }
 
 func (h *Handler) Profile(c *fiber.Ctx) error {
-	user, ok := c.Locals("user").(*model.User)
+	user, ok := c.Locals("user").(model.User)
+
 	if !ok {
 		return errors.New("cannot convert to user pointer")
 	}
