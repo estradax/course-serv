@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	err := internal.LoadEnv()	
+	err := internal.LoadEnv()
 	if err != nil {
 		log.Fatalln("Cannot loadEnv: ", err.Error())
 	}
@@ -18,7 +18,7 @@ func main() {
 		log.Fatalln("Something went wrong: ", err.Error())
 	}
 
-	err = db.AutoMigrate(&model.User{})
+	err = db.AutoMigrate(&model.User{}, &model.Course{})
 	if err != nil {
 		log.Fatalln("Cannot migrate: ", err.Error())
 	}
