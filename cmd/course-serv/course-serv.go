@@ -33,7 +33,7 @@ func main() {
 	app.Post("/api/v1/register", h.Register)
 	app.Post("/api/v1/login", h.Login)
 
-	app.Get("/api/v1/courses", h.Authenticated, h.CourseGetAll)
+	app.Get("/api/v1/courses", h.CourseGetAll)
 
 	if err := app.Listen(":8080"); err != nil {
 		log.Fatalln("Cannot listen: ", err.Error())
