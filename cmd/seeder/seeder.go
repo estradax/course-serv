@@ -34,6 +34,6 @@ func main() {
 		result := db.Create(&course)
 		if result.Error != nil {
 			log.Fatalln("Cannot create course: ", result.Error.Error())
-		}	
+		}
 	}
 }

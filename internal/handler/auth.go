@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/cloudinary/cloudinary-go/v2"
 	"github.com/estradax/course-serv/internal/model"
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
@@ -14,14 +15,16 @@ import (
 var errCantQueryFirstUser = errors.New("can't query first user")
 
 type Handler struct {
-	DB     *gorm.DB
-	Secret []byte
+	DB         *gorm.DB
+	Secret     []byte
+	Cloudinary *cloudinary.Cloudinary
 }
 
-func NewHandler(db *gorm.DB, secret []byte) *Handler {
+func NewHandler(db *gorm.DB, secret []byte, cld *cloudinary.Cloudinary) *Handler {
 	return &Handler{
-		DB:     db,
-		Secret: secret,
+		DB:         db,
+		Secret:     secret,
+		Cloudinary: cld,
 	}
 }
 

@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/cloudinary/cloudinary-go/v2"
 	"github.com/estradax/course-serv/internal"
 	"github.com/estradax/course-serv/internal/handler"
 	"github.com/gofiber/fiber/v2"
@@ -23,7 +24,13 @@ func main() {
 
 	jwtSecret := os.Getenv("JWT_SECRET")
 
-	h := handler.NewHandler(db, []byte(jwtSecret))
+	cldUrl := os.Getenv("CLOUDINARY_URL")
+	cld, err := cloudinary.NewFromURL(cldUrl)
+	if err != nil {
+		log.Fatalln("Cannot init cloudinary: ", err.Error())
+	}
+
+	h := handler.NewHandler(db, []byte(jwtSecret), cld)
 
 	app := fiber.New()
 
@@ -34,6 +41,7 @@ func main() {
 	app.Post("/api/v1/login", h.Login)
 
 	app.Get("/api/v1/courses", h.CourseGetAll)
+	app.Get("/api/v1/recommended", h.CourseBasicToLearn)
 
 	if err := app.Listen(":8080"); err != nil {
 		log.Fatalln("Cannot listen: ", err.Error())
