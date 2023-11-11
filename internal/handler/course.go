@@ -41,13 +41,13 @@ func (h *Handler) CourseBasicToLearn(c *fiber.Ctx) error {
 		}
 
 		images = append(images, fiber.Map{
-			"ID": course.ID,
+			"ID":       course.ID,
 			"ImageURL": resp.SecureURL,
 		})
 	}
 
 	return c.JSON(fiber.Map{
 		"courses": courses,
-		"images": images,
+		"images":  images,
 	})
 }
