@@ -395,11 +395,11 @@
                         </tr>
                       </thead>
                       <tbody>
-						{{range $_, $course := .Courses}}
+						{{range $i, $course := .Courses}}
 							<tr>
 								<th scope="row">{{$course.ID}}</th>
 								<td>
-									<img class="img-thumbnail" width="100" height="100" src="/assets/img/avatar/avatar-1.png" alt="...">
+									<img class="img-thumbnail" width="100" height="100" src="{{(index $.Images $i).ImageURL}}" alt="...">
 								</td>
 								<td>{{$course.Title}}</td>
 								<td>{{$course.Price}}</td>

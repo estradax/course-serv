@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"os"
 
@@ -37,7 +38,7 @@ func main() {
 
 	h := handler.NewHandler(db, []byte(jwtSecret), cld)
 	authService := service.NewAuthService(db, []byte(jwtSecret))
-	courseService := service.NewCourseService(db, []byte(jwtSecret))
+	courseService := service.NewCourseService(db, []byte(jwtSecret), cld)
 	middlewareService := middleware.New(db, []byte(jwtSecret))
 
 	engine := html.New("./views", ".html")
@@ -84,12 +85,14 @@ func main() {
 			return errors.New("cannot convert to user pointer")
 		}
 
-		courses, err := courseService.GetAll()
+		courses, images, err := courseService.GetAll()
 		if err != nil {
 			return err
 		}
 
-		return c.Render("admin/index", fiber.Map{"User": user, "Courses": courses})
+		fmt.Println(images)
+
+		return c.Render("admin/index", fiber.Map{"User": user, "Courses": courses, "Images": images})
 	})
 
 	app.Get("/admin/login", func(c *fiber.Ctx) error {
