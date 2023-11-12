@@ -37,6 +37,7 @@ func main() {
 
 	h := handler.NewHandler(db, []byte(jwtSecret), cld)
 	authService := service.NewAuthService(db, []byte(jwtSecret))
+	courseService := service.NewCourseService(db, []byte(jwtSecret))
 	middlewareService := middleware.New(db, []byte(jwtSecret))
 
 	engine := html.New("./views", ".html")
@@ -46,6 +47,8 @@ func main() {
 	})
 
 	app.Use(cors.New())
+
+	app.Static("/", "./public")
 
 	app.Get("/api/v1/profile", h.Authenticated, h.Profile)
 	app.Post("/api/v1/register", h.Register)
@@ -81,7 +84,12 @@ func main() {
 			return errors.New("cannot convert to user pointer")
 		}
 
-		return c.Render("admin/index", fiber.Map{"User": user})
+		courses, err := courseService.GetAll()
+		if err != nil {
+			return err
+		}
+
+		return c.Render("admin/index", fiber.Map{"User": user, "Courses": courses})
 	})
 
 	app.Get("/admin/login", func(c *fiber.Ctx) error {
