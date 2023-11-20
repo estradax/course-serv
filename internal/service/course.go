@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"strconv"
 
 	"github.com/cloudinary/cloudinary-go/v2"
 	"github.com/cloudinary/cloudinary-go/v2/api/admin"
@@ -14,6 +15,13 @@ type Course struct {
 	DB     *gorm.DB
 	Secret []byte
 	Cloudinary *cloudinary.Cloudinary
+}
+
+type CreateCourseRequest struct {
+	Image string `json:"image" form:"image"`
+	Title string `json:"title" form:"title"`
+	Description string `json:"description" form:"description"`
+	Price string `json:"price" form:"price"`
 }
 
 func NewCourseService(db *gorm.DB, secret []byte, cld *cloudinary.Cloudinary) *Course {
@@ -59,4 +67,25 @@ func (s *Course) GetAll() ([]model.Course, []fiber.Map, error) {
 	}
 
 	return *courses, images, nil
+}
+
+func (s *Course) Create(req CreateCourseRequest, imagePublicID string) error {
+	price, err := strconv.Atoi(req.Price)
+	if err != nil {
+		return err
+	}
+
+	course := model.Course{
+		Title: req.Title,
+		Description: req.Description,
+		Price: int32(price),
+		ImagePublicID: imagePublicID,
+	}
+
+	result := s.DB.Create(&course)
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
 }

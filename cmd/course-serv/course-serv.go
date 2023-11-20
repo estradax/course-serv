@@ -1,12 +1,13 @@
 package main
 
 import (
+	"context"
 	"errors"
-	"fmt"
 	"log"
 	"os"
 
 	"github.com/cloudinary/cloudinary-go/v2"
+	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
 	"github.com/estradax/course-serv/internal"
 	"github.com/estradax/course-serv/internal/handler"
 	"github.com/estradax/course-serv/internal/middleware"
@@ -90,9 +91,47 @@ func main() {
 			return err
 		}
 
-		fmt.Println(images)
-
 		return c.Render("admin/index", fiber.Map{"User": user, "Courses": courses, "Images": images})
+	})
+
+	app.Get("/admin/courses/create", middlewareService.IsAuthenticatedFromCookie, func(c *fiber.Ctx) error {
+		user, ok := c.Locals("user").(model.User)
+
+		if !ok {
+			return errors.New("cannot convert to user pointer")
+		}
+
+		return c.Render("admin/courses/create", fiber.Map{"User": user})
+	})
+
+	app.Post("/admin/courses", middlewareService.IsAuthenticatedFromCookie, func(c *fiber.Ctx) error {
+		req := new(service.CreateCourseRequest)
+		if err := c.BodyParser(req); err != nil {
+			return err
+		}
+
+		image, err := c.FormFile("image")
+		if err != nil {
+			return err
+		}
+
+		imageAsFile, err := image.Open()
+		if err != nil {
+			return err
+		}
+
+		ctx := context.Background()
+		resp, err := cld.Upload.Upload(ctx, imageAsFile, uploader.UploadParams{})
+		if err != nil {
+			return err
+		}
+
+		err = courseService.Create(*req, resp.PublicID)
+		if err != nil {
+			return err
+		}
+
+		return c.Redirect("/admin")
 	})
 
 	app.Get("/admin/login", func(c *fiber.Ctx) error {
